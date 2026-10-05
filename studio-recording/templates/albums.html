@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Каталог альбомов{% endblock %}
+{% block content %}
+<h1>Каталог проектов</h1>
+<p class="sub">Все альбомы, к которым у вас есть доступ</p>
+<div class="card">
+  <table>
+    <tr><th>Альбом</th><th>Жанр</th><th>Продюсер</th><th>Договор</th><th>Статус</th><th>Треки</th></tr>
+    {% for a in albums %}
+    <tr>
+      <td><a href="{{ url_for('album', album_id=a.id) }}"><b>{{ a.title }}</b></a></td>
+      <td>{{ a.genre }}</td>
+      <td>{{ a.producer or '—' }}</td>
+      <td>{{ a.contract }}<div><span class="badge b-{{ a.contract_status }}">{{ CONTRACT_STATUS[a.contract_status] }}</span></div></td>
+      <td><span class="badge b-{{ a.status }}">{{ ALBUM_STATUS[a.status] }}</span></td>
+      <td>{{ a.approved }} / {{ a.tracks }}</td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="muted">Альбомов пока нет</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

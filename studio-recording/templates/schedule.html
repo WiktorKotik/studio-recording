@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Расписание студии{% endblock %}
+{% block content %}
+<div class="head">
+  <div><h1>Расписание студии</h1><p class="sub" style="margin:0">Неделя {{ days[0].strftime('%d.%m') }} – {{ days[-1].strftime('%d.%m.%Y') }}</p></div>
+  <div><a class="btn ghost" href="{{ url_for('schedule', **{'from': prev}) }}">←</a>
+       <a class="btn ghost" href="{{ url_for('schedule') }}">Сегодня</a>
+       <a class="btn ghost" href="{{ url_for('schedule', **{'from': nxt}) }}">→</a></div>
+</div>
+<div class="grid g2" style="margin-top:18px;grid-template-columns:1.7fr 1fr">
+  <div class="card">
+    <table>
+      <tr><th></th>{% for r in rooms %}<th>{{ r.name }}</th>{% endfor %}</tr>
+      {% for d in days %}
+      <tr class="{{ 'today' if d.isoformat() == today }}">
+        <td class="day">{{ weekdays[d.weekday()] }}, {{ d.strftime('%d.%m') }}</td>
+        {% for r in rooms %}<td>
+          {% for s in grid[(d.isoformat(), r.id)] %}
+          <div class="cell">{{ s.starts_at[11:] }}–{{ s.ends_at[11:] }} · {{ s.album }}<small>{{ s.engineer or 'без звукорежиссёра' }}</small></div>
+          {% endfor %}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Новое бронирование</h2>
+    <form method="post" action="{{ url_for('book') }}">
+      <label>Проект (альбом)</label>
+      <select name="album_id" required>{% for a in albums %}<option value="{{ a.id }}" {{ 'selected' if request.args.get('album') == a.id|string }}>{{ a.title }}</option>{% endfor %}</select>
+      <label>Помещение</label>
+      <select name="room_id">{% for r in rooms %}<option value="{{ r.id }}">{{ r.name }} — {{ '%d'|format(r.hourly_rate) }} ₽/ч</option>{% endfor %}</select>
+      <label>Дата</label><input type="date" name="date" value="{{ today }}" required>
+      <div class="row"><div><label>Начало</label><input type="time" name="start" value="10:00" required></div>
+        <div><label>Конец</label><input type="time" name="end" value="14:00" required></div></div>
+      <label>Звукорежиссёр</label>
+      <select name="engineer_id"><option value="">Любой свободный</option>{% for e in engineers %}<option value="{{ e.id }}">{{ e.full_name }}</option>{% endfor %}</select>
+      <label>Дополнительные услуги</label>
+      <div class="checks">{% for s in services %}<label><input type="checkbox" name="services" value="{{ s.id }}"> {{ s.name }} (+{{ '%d'|format(s.price) }} ₽)</label>{% endfor %}</div>
+      <button class="btn" type="submit">Подтвердить бронирование</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

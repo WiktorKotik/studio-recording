@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Панель управления{% endblock %}
+{% block content %}
+<h1>Панель управления</h1>
+<p class="sub">Добро пожаловать, {{ g.user.full_name.split()[1] if g.user.full_name.split()|length > 1 else g.user.full_name }}</p>
+<div class="grid g4" style="margin-bottom:16px">
+  <div class="card stat a"><b>{{ stats.active }}</b><span>Активных альбомов</span></div>
+  <div class="card stat b"><b>{{ stats.week }}</b><span>Сессий на ближайшие 7 дней</span></div>
+  <div class="card stat c"><b>{{ stats.drafts }}</b><span>Договоров на подписании</span></div>
+  <div class="card stat d"><b>{{ stats.prints }}</b><span>Тиражей в работе</span></div>
+</div>
+<div class="grid g2">
+  <div class="card">
+    <h2>Ближайшие сессии</h2>
+    <table>
+      <tr><th>Дата и время</th><th>Альбом</th><th>Помещение</th></tr>
+      {% for s in upcoming %}
+      <tr><td>{{ s.starts_at[8:10] }}.{{ s.starts_at[5:7] }} · {{ s.starts_at[11:] }}–{{ s.ends_at[11:] }}</td>
+          <td>{{ s.album }}<div class="muted small">{{ s.engineer or '—' }}</div></td><td>{{ s.room }}</td></tr>
+      {% else %}<tr><td colspan="3" class="muted">Нет запланированных сессий</td></tr>{% endfor %}
+    </table>
+    <a class="btn" href="{{ url_for('schedule') }}">Новое бронирование</a>
+  </div>
+  <div class="card">
+    <h2>Уведомления</h2>
+    {% for e in events %}
+    <div style="padding:8px 0;border-bottom:1px solid var(--line)">{{ e.action }}
+      <div class="muted small">{{ e.full_name or 'Система' }} · {{ e.created_at[:16] }}</div></div>
+    {% endfor %}
+  </div>
+</div>
+<div class="card" style="margin-top:16px">
+  <h2>Сводка по альбомам</h2>
+  <table>
+    <tr><th>Альбом</th><th>Жанр</th><th>Статус</th><th>Треки утверждены</th></tr>
+    {% for a in albums %}
+    <tr><td><a href="{{ url_for('album', album_id=a.id) }}"><b>{{ a.title }}</b></a></td><td>{{ a.genre }}</td>
+      <td><span class="badge b-{{ a.status }}">{{ ALBUM_STATUS[a.status] }}</span></td>
+      <td style="width:220px">{{ a.approved }} из {{ a.tracks }}
+        <div class="bar"><i style="width:{{ (a.approved / a.tracks * 100) if a.tracks else 0 }}%"></i></div></td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ a.title }}{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{{ url_for('albums') }}">Альбомы</a> / {{ a.title }}</div>
+<div class="head">
+  <div><h1>{{ a.title }}</h1>
+    <p class="sub" style="margin:0">{{ a.genre }} · продюсер {{ a.producer or '—' }} · договор {{ a.contract }}
+      <span class="badge b-{{ a.contract_status }}">{{ CONTRACT_STATUS[a.contract_status] }}</span></p></div>
+  <span class="badge b-{{ a.status }}" style="font-size:14px;padding:5px 16px">{{ ALBUM_STATUS[a.status] }}</span>
+</div>
+<div class="grid g2" style="margin-top:20px">
+  <div class="card">
+    <h2>Список треков</h2>
+    <table>
+      <tr><th>№</th><th>Название</th><th>Последняя версия</th><th>Статус</th></tr>
+      {% for t in tracks %}
+      <tr><td>{{ t.position }}</td><td><b>{{ t.title }}</b></td>
+          <td class="small">{% if t.last_version %}v{{ t.last_version }} · <span class="muted">{{ t.last_file }}</span>{% else %}<span class="muted">файлов нет</span>{% endif %}</td>
+          <td><span class="badge b-{{ t.status }}">{{ TRACK_STATUS[t.status] }}</span></td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div>
+    <div class="card"><h2>Участники проекта</h2>
+      {% for m in members %}<div style="padding:6px 0">{{ m.full_name }}<div class="muted small">{{ m.project_role }}</div></div>{% endfor %}
+    </div>
+    <div class="card" style="margin-top:16px"><h2>Сессии записи</h2>
+      {% for s in sessions %}<div style="padding:6px 0">{{ s.starts_at[8:10] }}.{{ s.starts_at[5:7] }} · {{ s.starts_at[11:] }}–{{ s.ends_at[11:] }}
+        <div class="muted small">{{ s.room }} · {{ SESSION_STATUS[s.status] }}</div></div>
+      {% else %}<div class="muted">Сессий пока нет</div>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
